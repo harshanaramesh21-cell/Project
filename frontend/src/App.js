@@ -8,11 +8,9 @@ export default function App() {
 
   const api = "http://127.0.0.1:5000/users";
 
-  // Load users
   const load = () => fetch(api).then(r => r.json()).then(setUsers).catch(console.log);
-  useEffect(() => { load(); }, []);
+  useEffect(() => load(), []);
 
-  // Save (Add or Update)
   const save = () => {
     fetch(editId ? `${api}/${editId}` : api, {
       method: editId ? "PUT" : "POST",
@@ -26,31 +24,46 @@ export default function App() {
     });
   };
 
-  // Delete
   const del = id => fetch(`${api}/${id}`, { method: "DELETE" }).then(load);
 
-  // Sort by name only
   const sortByName = () => setUsers([...users].sort((a,b)=>a[1].localeCompare(b[1])));
 
-  return (
-    <div style={{padding:20}}>
-      <h2>CRUD App</h2>
-      <input placeholder="Name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/>
-      <input placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
-      <button onClick={save}>{editId?"Update":"Add"}</button>
-      <button onClick={sortByName}>Sort by Name</button>
+  const inputStyle = { flex:1, padding:8, borderRadius:5, border:"1px solid #ccc" };
+  const btnStyle = bg => ({ padding:"6px 12px", margin:2, borderRadius:5, border:"none", backgroundColor:bg, color:"white", cursor:"pointer" });
+  const tableStyle = { width:"100%", borderCollapse:"collapse", backgroundColor:"white", borderRadius:5, overflow:"hidden" };
+  const thStyle = { padding:10, backgroundColor:"#4CAF50", color:"white" };
+  const tdStyle = { padding:8, textAlign:"center" };
 
-      <table border="1" style={{marginTop:20}}>
-        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Action</th></tr></thead>
+  return (
+    <div style={{ fontFamily:"Arial,sans-serif", padding:30, maxWidth:700, margin:"auto", backgroundColor:"#f5f5f5", borderRadius:10 }}>
+      <h2 style={{ textAlign:"center", color:"#333" }}>User CRUD Application</h2>
+
+      <div style={{ display:"flex", gap:10, marginBottom:20 }}>
+        <input placeholder="Name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} style={inputStyle}/>
+        <input placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} style={inputStyle}/>
+        <button onClick={save} style={btnStyle("#4CAF50")}>{editId?"Update":"Add"}</button>
+      </div>
+
+      <button onClick={sortByName} style={btnStyle("#2196F3")}>Sort by Name</button>
+
+      <table style={tableStyle}>
+        <thead>
+          <tr>
+            <th style={thStyle}>ID</th>
+            <th style={thStyle}>Name</th>
+            <th style={thStyle}>Email</th>
+            <th style={thStyle}>Action</th>
+          </tr>
+        </thead>
         <tbody>
           {users.map(u=>(
-            <tr key={u[0]} style={{ backgroundColor: u[0]===lastAddedId ? "#d4f4dd" : "white" }}>
-              <td>{u[0]}</td>
-              <td>{u[1]}</td>
-              <td>{u[2]}</td>
-              <td>
-                <button onClick={()=>{setEditId(u[0]); setForm({name:u[1],email:u[2]})}}>Edit</button>
-                <button onClick={()=>del(u[0])}>Delete</button>
+            <tr key={u[0]} style={{ backgroundColor:u[0]===lastAddedId?"#d4f4dd":"white" }}>
+              <td style={tdStyle}>{u[0]}</td>
+              <td style={tdStyle}>{u[1]}</td>
+              <td style={tdStyle}>{u[2]}</td>
+              <td style={tdStyle}>
+                <button onClick={()=>{setEditId(u[0]); setForm({name:u[1],email:u[2]})}} style={btnStyle("#2196F3")}>Edit</button>
+                <button onClick={()=>del(u[0])} style={btnStyle("#f44336")}>Delete</button>
               </td>
             </tr>
           ))}
